@@ -4,11 +4,117 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Open URLs</title>
+    <style>
+          #container {
+            max-width: 500px;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      position: relative;
+      margin: 0 auto;
+        }
+
+        #header-form {
+            margin-bottom: 20px; /* Added margin-bottom */
+        }
+
+        .message-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            flex-grow: 1;
+            margin-right: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .loading-icon {
+            display: none;
+        }
+
+        .tick-mark {
+            display: none;
+            font-size: 24px;
+            color: #008000;
+            margin-bottom: -8px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
   </head>
   <body>
-    <h1>Click the button to open URLs</h1>
-    <form action="/openurls" method="get">
-      <button type="submit">Open URLs</button>
-    </form>
+    <div id="container">
+      <div id="header-form">
+        <h1>Click the button to open URLs</h1>
+        <form id="openForm">
+          <button type="submit">Open URLs</button>
+        </form>
+      </div>
+
+      <div id="messages"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      document.getElementById('openForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          socket.emit('open_urls');
+      });
+
+      socket.on('message', function(msg) {
+          var messageContainer = document.createElement('div');
+          messageContainer.classList.add('message-container');
+
+          var messageDiv = document.createElement('div');
+          messageDiv.classList.add('message');
+          messageDiv.textContent = msg;
+
+          var loadingIcon = document.createElement('div');
+          loadingIcon.classList.add('loading-icon');
+          loadingIcon.textContent = 'Loading...';
+
+          var tickMark = document.createElement('div');
+          tickMark.classList.add('tick-mark');
+          tickMark.textContent = '✔';
+
+          messageContainer.appendChild(messageDiv);
+          messageContainer.appendChild(loadingIcon);
+          messageContainer.appendChild(tickMark);
+
+          document.getElementById('messages').appendChild(messageContainer);
+
+          if (msg.includes('Successfully connected')) {
+              loadingIcon.style.display = 'none'; // Hide loading icon
+              tickMark.style.display = 'block'; // Show tick mark
+          }
+      });
+    </script>
   </body>
 </html>

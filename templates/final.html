@@ -4,11 +4,68 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Open URLs</title>
+    <style>
+      /* Define CSS styles for the messages */
+      .message {
+          margin-bottom: 5px;
+          padding: 10px;
+          background-color: #f0f0f0;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+      }
+
+      /* Define CSS styles for the loading icon and tick mark */
+      .loading-icon {
+          display: none;
+          /* Add CSS styles for the loading icon */
+      }
+
+      .tick-mark {
+          display: none;
+          /* Add CSS styles for the tick mark */
+      }
+    </style>
   </head>
   <body>
     <h1>Click the button to open URLs</h1>
-    <form action="/openurls" method="get">
+    <form id="openForm">
       <button type="submit">Open URLs</button>
     </form>
+
+    <div id="loadingIcon" class="loading-icon">Loading...</div>
+    <div id="tickMark" class="tick-mark">✔</div>
+
+    <div id="messages"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+      var socket = io();
+      var loadingIcon = document.getElementById('loadingIcon');
+      var tickMark = document.getElementById('tickMark');
+
+      document.getElementById('openForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          socket.emit('open_urls');
+          showLoadingIcon();
+      });
+
+      socket.on('message', function(msg) {
+          var messageDiv = document.createElement('div');
+          messageDiv.classList.add('message');
+          messageDiv.textContent = msg;
+          document.getElementById('messages').appendChild(messageDiv);
+          showTickMark();
+      });
+
+      function showLoadingIcon() {
+          loadingIcon.style.display = 'block';
+          tickMark.style.display = 'none';
+      }
+
+      function showTickMark() {
+          loadingIcon.style.display = 'none';
+          tickMark.style.display = 'block';
+      }
+    </script>
   </body>
 </html>
